@@ -1,0 +1,10 @@
+cache/
+out/
+.gas-snapshot
+.vscode/
+.env
+.encryptedKey
+broadcast/
+
+node_modules
+package-lock.json
