@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -11,24 +12,34 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract KxyChain is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
 
-    Counters.Counter private _tokenIdCounter;
+    Counters.Counter public _tokenIdCounter;
+
+    error YouDontHaveAnyKeys(string _error);
 
     address playground;
+    IERC20 keyrxng;
 
-    constructor(address _playground) ERC721("KxyChain", "CHAIN") {
+    constructor() ERC721("KxyChain", "CHAIN") {}
+
+    function init(address _playground) external returns (bool) {
         playground = _playground;
-        setApprovalForAll(playground, true);
+        // _setApprovalForAll(address(this), playground, true);
+        return true;
     }
 
     function _baseURI() internal pure override returns (string memory) {
         return "https://keyrxng.xyz/";
     }
 
-    function safeMint(address to, string memory uri) public onlyOwner {
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
-        _safeMint(to, tokenId);
-        _setTokenURI(tokenId, uri);
+    function safeMint(string memory uri, address _who) public {
+        if (keyrxng.balanceOf(_who) == 0) {
+            revert YouDontHaveAnyKeys("errrror");
+        } else {
+            uint256 tokenId = _tokenIdCounter.current();
+            _tokenIdCounter.increment();
+            _safeMint(_who, tokenId);
+            _setTokenURI(tokenId, uri);
+        }
     }
 
     // The following functions are overrides required by Solidity.

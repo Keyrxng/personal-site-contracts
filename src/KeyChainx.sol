@@ -2,16 +2,24 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 /// @custom:security-contact keyrxng@keyrxng.xyz
 contract KeyChainx is ERC1155, Ownable, ERC1155Supply {
     address playground;
+    IERC721 kxychain;
 
-    constructor(address _playground) ERC1155("https://keyrxng.xyz/") {
+    error YouDontHaveAKeyChain();
+
+    constructor() ERC1155("https://keyrxng.xyz/") {}
+
+    function init(address _playground) external returns (bool) {
         playground = _playground;
-        setApprovalForAll(playground, true);
+        // _setApprovalForAll(playground, playground, true);
+        // _setApprovalForAll(address(this), playground, true);
+        return true;
     }
 
     function setURI(string memory newuri) public onlyOwner {
@@ -23,8 +31,12 @@ contract KeyChainx is ERC1155, Ownable, ERC1155Supply {
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) public onlyOwner {
-        _mint(account, id, amount, data);
+    ) public {
+        if (kxychain.balanceOf(account) == 0) {
+            revert YouDontHaveAKeyChain();
+        } else {
+            _mint(account, id, amount, data);
+        }
     }
 
     function mintBatch(
@@ -32,7 +44,7 @@ contract KeyChainx is ERC1155, Ownable, ERC1155Supply {
         uint256[] memory ids,
         uint256[] memory amounts,
         bytes memory data
-    ) public onlyOwner {
+    ) public {
         _mintBatch(to, ids, amounts, data);
     }
 

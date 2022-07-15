@@ -6,6 +6,7 @@ import {KeyChainx} from "./KeyChainx.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {IERC721} from "@openzeppelin/contracts/interfaces/IERC721.sol";
 import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {console} from "forge-std/console.sol";
 
 import {IERC721Receiver} from "@openzeppelin/contracts/interfaces/IERC721Receiver.sol";
 import {IERC1155Receiver} from "@openzeppelin/contracts/interfaces/IERC1155Receiver.sol";
@@ -21,7 +22,7 @@ contract Playground is IERC1155Receiver, IERC721Receiver {
 
     uint256 internal constant STARTER_KEY = 100 ether;
     string internal constant STARTER_KEYCHAIN =
-        "https://keyrxng.xyz/static/media/bck.9403adc621c443da6fc6.png";
+        "/static/media/bck.9403adc621c443da6fc6.png";
     uint256 internal constant STARTER_KEYCHAINX = 1;
 
     mapping(address => mapping(address => uint256)) public timelockedAmounts;
@@ -57,22 +58,34 @@ contract Playground is IERC1155Receiver, IERC721Receiver {
         keyChainx_ = address(_keychainx);
     }
 
-    function mintERC20() public {
-        keyrxng.mint(msg.sender, STARTER_KEY);
+    function init() public returns (bool) {
+        bool token0 = keyrxng.init(address(this));
+        bool token1 = kxyChain.init(address(this));
+        bool token2 = keyChainx.init(address(this));
+        bool success = (token0 && token1 && token2);
+        mintERC20(msg.sender);
+        return success;
     }
 
-    function mintERC721() public {
-        if (keyrxng.balanceOf(msg.sender) == 0) {
-            revert NoERC20Balance();
-        }
-        kxyChain.safeMint(msg.sender, STARTER_KEYCHAIN);
+    function mintERC20(address _who) public {
+        keyrxng.mint(_who);
     }
 
-    function mintERC1155() public {
-        if (kxyChain.balanceOf(msg.sender) == 0) {
+    function mintERC721(address _who) public {
+        if (keyrxng.balanceOf(_who) == 0) {
             revert NoERC20Balance();
+        } else {
+            uint256 id = kxyChain._tokenIdCounter();
+            kxyChain.safeMint(STARTER_KEYCHAIN, _who);
         }
-        keyChainx.mint(msg.sender, STARTER_KEYCHAINX, 1, "");
+    }
+
+    function mintERC1155(address _who) public {
+        if (kxyChain.balanceOf(_who) == 0) {
+            revert NoERC20Balance();
+        } else {
+            keyChainx.mint(_who, 1, 1, "");
+        }
     }
 
     function addToTimelock(
@@ -186,5 +199,23 @@ contract Playground is IERC1155Receiver, IERC721Receiver {
         bytes calldata data
     ) external pure override returns (bytes4) {
         return IERC1155Receiver.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(
+        address operator,
+        address from,
+        uint256[] calldata ids,
+        uint256[] calldata values,
+        bytes calldata data
+    ) external pure override returns (bytes4) {
+        return IERC1155Receiver.onERC1155BatchReceived.selector;
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        external
+        view
+        returns (bool)
+    {
+        return true;
     }
 }
