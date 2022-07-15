@@ -72,20 +72,12 @@ contract Playground is IERC1155Receiver, IERC721Receiver {
     }
 
     function mintERC721(address _who) public {
-        if (keyrxng.balanceOf(_who) == 0) {
-            revert NoERC20Balance();
-        } else {
-            uint256 id = kxyChain._tokenIdCounter();
-            kxyChain.safeMint(STARTER_KEYCHAIN, _who);
-        }
+        uint256 id = kxyChain._tokenIdCounter();
+        kxyChain.safeMint(STARTER_KEYCHAIN, _who);
     }
 
     function mintERC1155(address _who) public {
-        if (kxyChain.balanceOf(_who) == 0) {
-            revert NoERC20Balance();
-        } else {
-            keyChainx.mint(_who, 1, 1, "");
-        }
+        keyChainx.mint(_who, 1, 1, "");
     }
 
     function addToTimelock(
@@ -187,7 +179,8 @@ contract Playground is IERC1155Receiver, IERC721Receiver {
         address,
         uint256,
         bytes memory
-    ) external pure override returns (bytes4) {
+    ) external override returns (bytes4) {
+        kxyChain.transferFrom(address(this), tx.origin, 0);
         return IERC721Receiver.onERC721Received.selector;
     }
 

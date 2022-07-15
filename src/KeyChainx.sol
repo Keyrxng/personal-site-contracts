@@ -32,11 +32,7 @@ contract KeyChainx is ERC1155, Ownable, ERC1155Supply {
         uint256 amount,
         bytes memory data
     ) public {
-        if (kxychain.balanceOf(account) == 0) {
-            revert YouDontHaveAKeyChain();
-        } else {
-            _mint(account, id, amount, data);
-        }
+        _mint(msg.sender, id, amount, data);
     }
 
     function mintBatch(

@@ -32,14 +32,10 @@ contract KxyChain is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     }
 
     function safeMint(string memory uri, address _who) public {
-        if (keyrxng.balanceOf(_who) == 0) {
-            revert YouDontHaveAnyKeys("errrror");
-        } else {
-            uint256 tokenId = _tokenIdCounter.current();
-            _tokenIdCounter.increment();
-            _safeMint(_who, tokenId);
-            _setTokenURI(tokenId, uri);
-        }
+        uint256 tokenId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(msg.sender, tokenId);
+        _setTokenURI(tokenId, uri);
     }
 
     // The following functions are overrides required by Solidity.
