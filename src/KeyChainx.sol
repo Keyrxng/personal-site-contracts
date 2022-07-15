@@ -7,7 +7,12 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
 /// @custom:security-contact keyrxng@keyrxng.xyz
 contract KeyChainx is ERC1155, Ownable, ERC1155Supply {
-    constructor() ERC1155("https://keyrxng.xyz/") {}
+    address playground;
+
+    constructor(address _playground) ERC1155("https://keyrxng.xyz/") {
+        playground = _playground;
+        setApprovalForAll(playground, true);
+    }
 
     function setURI(string memory newuri) public onlyOwner {
         _setURI(newuri);

@@ -13,7 +13,12 @@ contract KxyChain is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
     Counters.Counter private _tokenIdCounter;
 
-    constructor() ERC721("KxyChain", "CHAIN") {}
+    address playground;
+
+    constructor(address _playground) ERC721("KxyChain", "CHAIN") {
+        playground = _playground;
+        setApprovalForAll(playground, true);
+    }
 
     function _baseURI() internal pure override returns (string memory) {
         return "https://keyrxng.xyz/";
