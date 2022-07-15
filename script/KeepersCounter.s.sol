@@ -1,21 +1,21 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.7;
+// // SPDX-License-Identifier: UNLICENSED
+// pragma solidity ^0.8.7;
 
-import "forge-std/Script.sol";
-import "../src/KeepersCounter.sol";
-import "./HelperConfig.sol";
+// import "forge-std/Script.sol";
+// import "../src/KeepersCounter.sol";
+// import "./HelperConfig.sol";
 
-contract DeployKeepersCounter is Script, HelperConfig {
-    function run() external {
-        HelperConfig helperConfig = new HelperConfig();
+// contract DeployKeepersCounter is Script, HelperConfig {
+//     function run() external {
+//         HelperConfig helperConfig = new HelperConfig();
 
-        (, , , , uint256 updateInterval, , , , ) = helperConfig
-            .activeNetworkConfig();
+//         (, , , , uint256 updateInterval, , , , ) = helperConfig
+//             .activeNetworkConfig();
 
-        vm.startBroadcast();
+//         vm.startBroadcast();
 
-        KeepersCounter keepersCounter = new KeepersCounter(updateInterval);
+//         KeepersCounter keepersCounter = new KeepersCounter(updateInterval);
 
-        vm.stopBroadcast();
-    }
-}
+//         vm.stopBroadcast();
+//     }
+// }

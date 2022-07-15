@@ -26,5 +26,8 @@
     "format": "make format",
     "lint": "make lint",
     "all": "make all"
+  },
+  "dependencies": {
+    "hardhat": "^2.10.1"
   }
 }
