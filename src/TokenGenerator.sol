@@ -15,9 +15,9 @@ contract TokenGenerator {
 
     error THISERROR();
     error DeployError();
-    event NewERC20(address indexed owner);
-    event NewERC721(address indexed owner);
-    event NewERC1155(address indexed owner);
+    event NewERC20(address indexed owner, address indexed tokenAddr);
+    event NewERC721(address indexed owner, address indexed tokenAddr);
+    event NewERC1155(address indexed owner, address indexed tokenAddr);
 
     constructor() {}
 
@@ -44,7 +44,7 @@ contract TokenGenerator {
         if (mintedERC20s.length == len) {
             revert DeployError();
         }
-        emit NewERC20(msg.sender);
+        emit NewERC20(msg.sender, tokenAddr);
         return true;
     }
 
@@ -60,7 +60,7 @@ contract TokenGenerator {
         if (mintedERC721s.length == len) {
             revert DeployError();
         }
-        emit NewERC721(msg.sender);
+        emit NewERC721(msg.sender, tokenAddr);
         return true;
     }
 
@@ -72,7 +72,7 @@ contract TokenGenerator {
         if (mintedERC1155s.length == len) {
             revert DeployError();
         }
-        emit NewERC1155(msg.sender);
+        emit NewERC1155(msg.sender, tokenAddr);
         return true;
     }
 }
