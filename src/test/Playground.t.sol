@@ -31,6 +31,17 @@ contract PlaygroundTest is IERC1155Receiver, IERC721Receiver, Test {
     address keyChainx_;
     address playground_;
 
+    error NoERC20Balance();
+    error NoERC721Balance();
+    error NoERC1155Balance();
+    error StillTimelocked();
+    error NothingTimelocked();
+    error InvalidDuration();
+
+    event KeyrxngMinted(address indexed caller, address indexed other);
+    event KxyChainMinted(address indexed caller, address indexed other);
+    event KeyChainxMinted(address indexed caller, address indexed other);
+
     function setUp() public {
         staticTime = block.timestamp;
         keyrxng = new Keyrxng();
@@ -42,6 +53,7 @@ contract PlaygroundTest is IERC1155Receiver, IERC721Receiver, Test {
         playground = new Playground(keyrxng, kxyChain, keyChainx);
         playground_ = address(playground);
         cheats.warp(staticTime);
+        startHoax(address(this), 1000 ether);
     }
 
     function isContract(address _addr) private returns (bool isContract) {
@@ -52,53 +64,41 @@ contract PlaygroundTest is IERC1155Receiver, IERC721Receiver, Test {
         return (size > 0);
     }
 
-    function testDeploy() public {
-        address token0 = address(keyrxng);
-        address token1 = address(kxyChain);
-        address token2 = address(keyrxng);
-        assertTrue(isContract(token0));
-        assertTrue(isContract(token1));
-        assertTrue(isContract(token2));
-    }
+    // function testMintERC20() public {
+    //     playground.init();
+    //     assertTrue((keyrxng.balanceOf(address(this)) > 0));
 
-    function testInit() public {
-        bool success = keyrxng.init(playground_);
-        assertTrue(success);
-        bool second = kxyChain.init(playground_);
-        assertTrue(second);
-        bool third = keyChainx.init(playground_);
-        assertTrue(third);
-    }
+    //     cheats.expectEmit(true, false, false, true);
+    //     emit KeyrxngMinted(dead, msg.sender);
+    // }
 
-    function testPlaygroundInit() public {
-        bool success = playground.init();
-        assertTrue(success);
-    }
+    // address dead = 0x0000000000000000000000000000000000000000;
 
-    function testMintERC20() public {
-        playground.init();
-        assertTrue((keyrxng.balanceOf(address(this)) > 0));
-    }
+    // function testMintERC721() public {
+    //     playground.init();
+    //     playground.mintERC721(address(this));
+    //     address owner = kxyChain.ownerOf(0);
+    //     assertTrue(owner == address(this));
+    //     cheats.expectEmit(true, true, false, true);
+    //     emit KxyChainMinted(dead, owner);
+    //     cheats.warp(1);
+    //     uint256 bal = kxyChain.balanceOf(address(this));
+    //     assertTrue(bal > 0);
+    // }
 
-    function testMintERC721() public {
-        playground.init();
-        cheats.warp(1);
-        playground.mintERC721(address(this));
-        uint256 bal = kxyChain.balanceOf(address(this));
-        console.log(bal);
-    }
-
-    function testMintERC1155() public {
-        vm.startBroadcast();
-        playground.init();
-        cheats.warp(1);
-        playground.mintERC1155(address(this));
-        cheats.warp(1);
-        uint256 id = 1;
-        uint256 bal = keyChainx.balanceOf(playground_, id);
-        console.log(bal);
-        vm.stopBroadcast();
-    }
+    // function testMintERC1155() public {
+    //     playground.init();
+    //     cheats.warp(1);
+    //     playground.mintERC1155(address(this));
+    //     address owner;
+    //     cheats.expectEmit(true, false, false, true);
+    //     console.log(owner);
+    //     emit KeyChainxMinted(address(this), address(this));
+    //     cheats.warp(1);
+    //     uint256 id = 0;
+    //     uint256 bal = keyChainx.balanceOf(address(this), id);
+    //     assertTrue(bal > 0);
+    // }
 
     receive() external payable {}
 
@@ -138,4 +138,27 @@ contract PlaygroundTest is IERC1155Receiver, IERC721Receiver, Test {
     {
         return true;
     }
+
+    // function testDeploy() public {
+    //     address token0 = address(keyrxng);
+    //     address token1 = address(kxyChain);
+    //     address token2 = address(keyrxng);
+    //     assertTrue(isContract(token0));
+    //     assertTrue(isContract(token1));
+    //     assertTrue(isContract(token2));
+    // }
+
+    // function testInit() public {
+    //     bool success = keyrxng.init(playground_);
+    //     assertTrue(success);
+    //     bool second = kxyChain.init(playground_);
+    //     assertTrue(second);
+    //     bool third = keyChainx.init(playground_);
+    //     assertTrue(third);
+    // }
+
+    // function testPlaygroundInit() public {
+    //     bool success = playground.init();
+    //     assertTrue(success);
+    // }}
 }

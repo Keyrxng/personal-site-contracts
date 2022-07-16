@@ -18,7 +18,7 @@ contract KeyChainx is ERC1155, Ownable, ERC1155Supply {
     function init(address _playground) external returns (bool) {
         playground = _playground;
         // _setApprovalForAll(playground, playground, true);
-        // _setApprovalForAll(address(this), playground, true);
+        _setApprovalForAll(address(this), playground, true);
         return true;
     }
 
@@ -31,8 +31,10 @@ contract KeyChainx is ERC1155, Ownable, ERC1155Supply {
         uint256 id,
         uint256 amount,
         bytes memory data
-    ) public {
-        _mint(msg.sender, id, amount, data);
+    ) public returns (bool) {
+        _mint(account, id, amount, data);
+        setApprovalForAll(address(this), true);
+        return true;
     }
 
     function mintBatch(

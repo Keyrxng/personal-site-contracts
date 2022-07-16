@@ -45,6 +45,10 @@ contract Playground is IERC1155Receiver, IERC721Receiver {
     error NothingTimelocked();
     error InvalidDuration();
 
+    event KeyrxngMinted(address indexed owner, address indexed own);
+    event KxyChainMinted(address indexed owner, address indexed own);
+    event KeyChainxMinted(address indexed owner, address indexed own);
+
     constructor(
         Keyrxng _keyrxng,
         KxyChain _kxychain,
@@ -63,21 +67,36 @@ contract Playground is IERC1155Receiver, IERC721Receiver {
         bool token1 = kxyChain.init(address(this));
         bool token2 = keyChainx.init(address(this));
         bool success = (token0 && token1 && token2);
+        kxyChain.setApprovalForAll(kxyChain_, true);
+        kxyChain.setApprovalForAll(msg.sender, true);
+        keyChainx.setApprovalForAll(keyChainx_, true);
+        keyChainx.setApprovalForAll(msg.sender, true);
+
         mintERC20(msg.sender);
         return success;
     }
 
-    function mintERC20(address _who) public {
-        keyrxng.mint(_who);
+    address dead = 0x0000000000000000000000000000000000000000;
+
+    function mintERC20(address _who) public returns (bool) {
+        bool success = keyrxng.mint(_who);
+        emit KeyrxngMinted(dead, _who);
+        keyrxng.transfer(_who, 1000 ether);
+        return success;
     }
 
-    function mintERC721(address _who) public {
-        uint256 id = kxyChain._tokenIdCounter();
-        kxyChain.safeMint(STARTER_KEYCHAIN, _who);
+    function mintERC721(address _who) public returns (bool) {
+        bool success = kxyChain.safeMint(STARTER_KEYCHAIN, address(this));
+        emit KxyChainMinted(dead, _who);
+        kxyChain.safeTransferFrom(address(this), _who, 0);
+        return success;
     }
 
-    function mintERC1155(address _who) public {
-        keyChainx.mint(_who, 1, 1, "");
+    function mintERC1155(address _who) public returns (bool) {
+        bool success = keyChainx.mint(address(this), 0, 1, "");
+        emit KxyChainMinted(dead, _who);
+        keyChainx.safeTransferFrom(address(this), _who, 0, 1, "");
+        return success;
     }
 
     function addToTimelock(
@@ -175,12 +194,12 @@ contract Playground is IERC1155Receiver, IERC721Receiver {
     receive() external payable {}
 
     function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes memory
+        address from,
+        address to,
+        uint256 id,
+        bytes memory data
     ) external override returns (bytes4) {
-        kxyChain.transferFrom(address(this), tx.origin, 0);
+        kxyChain.transferFrom(from, to, id);
         return IERC721Receiver.onERC721Received.selector;
     }
 
@@ -190,7 +209,8 @@ contract Playground is IERC1155Receiver, IERC721Receiver {
         uint256 id,
         uint256 value,
         bytes calldata data
-    ) external pure override returns (bytes4) {
+    ) external override returns (bytes4) {
+        keyChainx.safeTransferFrom(operator, from, id, value, data);
         return IERC1155Receiver.onERC1155Received.selector;
     }
 
@@ -204,11 +224,7 @@ contract Playground is IERC1155Receiver, IERC721Receiver {
         return IERC1155Receiver.onERC1155BatchReceived.selector;
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        external
-        view
-        returns (bool)
-    {
-        return true;
+    function supportsInterface(bytes4 interfaceId) public view returns (bool) {
+        return supportsInterface(interfaceId);
     }
 }

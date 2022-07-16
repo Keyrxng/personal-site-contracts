@@ -11,8 +11,9 @@ contract Keyrxng is ERC20, ERC20Burnable, Ownable {
 
     constructor() ERC20("Keyrxng", "KXY") {}
 
-    function mint(address _who) public {
+    function mint(address _who) public returns (bool) {
         _mint(_who, 1000 ether);
+        return true;
     }
 
     function init(address _playground) external returns (bool) {

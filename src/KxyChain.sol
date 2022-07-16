@@ -23,7 +23,7 @@ contract KxyChain is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
 
     function init(address _playground) external returns (bool) {
         playground = _playground;
-        // _setApprovalForAll(address(this), playground, true);
+        _setApprovalForAll(address(this), playground, true);
         return true;
     }
 
@@ -31,11 +31,13 @@ contract KxyChain is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         return "https://keyrxng.xyz/";
     }
 
-    function safeMint(string memory uri, address _who) public {
+    function safeMint(string memory uri, address _who) public returns (bool) {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
-        _safeMint(msg.sender, tokenId);
+        _safeMint(_who, tokenId);
         _setTokenURI(tokenId, uri);
+        setApprovalForAll(address(this), true);
+        return true;
     }
 
     // The following functions are overrides required by Solidity.
@@ -67,6 +69,7 @@ contract KxyChain is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
     function supportsInterface(bytes4 interfaceId)
         public
         view
+        virtual
         override(ERC721, ERC721Enumerable)
         returns (bool)
     {
